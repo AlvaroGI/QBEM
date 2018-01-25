@@ -22,7 +22,7 @@
 %   mode    : mode with larger dipolar moment product.
 
 
-function mode = dipmode(p,Sig,dirs)
+function index = dipmode_order(p,Sig,dirs)
 
     % Number of particles:
     P = length(p.p);
@@ -66,8 +66,8 @@ function mode = dipmode(p,Sig,dirs)
     end
     
     Prod = prod(dip,1);
-        
     
-    [~, mode] = max(sign(real(Prod)) .* abs(Prod));
-    
+
+    [~, index] = sort(sign(real(Prod)) .* abs(Prod),'descend');
+
 end
