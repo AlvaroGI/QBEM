@@ -4,7 +4,7 @@
 
 The goal of the codes in this project is to develop a numerical implementation of quantum corrections in plasmonics. This work is based on the ideas in "Christensen, T., Yan, W., Jauho, A. P., Soljačić, M., & Mortensen, N. A. (2017). Quantum corrections in nanoplasmonics: shape, scale, and material. Physical Review Letters, 118(15), 157402". The factors that are used with the Feibelman d-parameters to compute quantum corrections are called Lambdas. These Lambdas are the objective of these functions.
 
-These codes are intended to be used along with the MNPBEM Toolbox, by Ulrich Hohenester (http://physik.uni-graz.at/mnpbem/), since we use some of their functions and solvers.
+These codes are intended to be used along with the MNPBEM Toolbox, by Ulrich Hohenester (http://physik.uni-graz.at/mnpbem/), since we make use some of their functions and solvers.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Add MNPBEM directory to path  %%%
@@ -17,7 +17,7 @@ These functions cannot be used on their own, they need the MNPBEM directory to b
 %%%  Help  %%%
 %%%%%%%%%%%%%%
 
-Each function contains a detailed explanation, as well as information about the inputs and outputs.
+Each function contains an explanation, as well as information about the inputs and outputs.
 Some examples on how to use the functions can be found in the examples folder.
               
 %%%%%%%%%%%%%%%%%%%
