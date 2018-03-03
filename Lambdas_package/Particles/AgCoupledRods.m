@@ -1,18 +1,19 @@
 %-------------------------------------------------------------------------
 % Author: Alvaro Gomez Inesta (UPC, MIT) & Thomas Christensen (MIT).
-% December 2017. (Last updated: January 20, 2018)
+% December 2017. (Last updated: March 2, 2018)
 % Massachusetts Institute of Technology (MIT) & UPC (CFIS).
 %-------------------------------------------------------------------------
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Shortcut to create Ag twin spheres (same diameter) embedded in air 
+% Shortcut to create Ag twin rods (same diameter) embedded in air 
 % using MNPBEM for non-retarded static simulations and 'curv' interpolation.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 % INPUTS:
-%   diameter: diameter of the spheres [nm].
-%   ab      : diameter/gap.
+%   diam    : diameter of the spheres [nm].
+%   ab      : height/diameter.
+%   gap     : gap between rods [nm].
 %   Nelem   : approximated number of elements PER SPHERE.
 
 % OUTPUTS:
