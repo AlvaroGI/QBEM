@@ -71,9 +71,11 @@ function [Lambda_0, Lambda_T, Lambda_II, Sig] = Lambdas(p, op, mode, dirs)
             end
     end
     
-    % Normalize directions (required to compare dipole moments later):
-    dirsn = (dirs(:,1).^2+dirs(:,2).^2+dirs(:,3).^2).^.5;
-    dirs = dirs./repmat(dirsn,[1,3]);
+    if sum(mode)==-1 || strcmp(mode,'dipolar_max')
+        % Normalize directions (required to compare dipole moments later):
+        dirsn = (dirs(:,1).^2+dirs(:,2).^2+dirs(:,3).^2).^.5;
+        dirs = dirs./repmat(dirsn,[1,3]);
+    end
     
     %% Previous definitions
     Areas_vec = [];
