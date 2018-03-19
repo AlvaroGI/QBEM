@@ -29,7 +29,8 @@
 %             of dipole moments in the directions specified by the user.
 %             Set mode='azimuthal' to show the modes in decreasing order of
 %             'stronger' azimuthal symmetry in particle 'azpart'. See 
-%             azmode_order.m for further information.
+%             azmode_order.m for further information. This is a BETA
+%             FUNCTION, may not work as desired in some cases.
 %             Set mode='all' to get the outputs for every mode (each column
 %             in the output arrays corresponds to a different mode).
 %   dirs    : direction of the total dipole moment of particle i in row
@@ -39,12 +40,12 @@
 %             'dipolar_max' or 'azimuthal'.
 %   azpart  : particle whose modes' azimuthal symmetry will be taken into 
 %             account. Input only required if mode = 'azimuthal'.
-%¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡
+%ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ï¿½
 % IMPORTANT: the maximization of the dipole moment is performed by
 % maximizing the product of the dipole moments of the particles.
 % We recommend to use mode=-1 to check if the desired mode is
 % indeed the first mode so one can use mode='dipolar_max' instead.
-%¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡
+%ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ï¿½
 
 % OUTPUTS:
 %   Lambda_0    : classical eigenvalue (see [1]). Units: adimensional.
