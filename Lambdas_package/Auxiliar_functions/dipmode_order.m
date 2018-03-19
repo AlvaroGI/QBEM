@@ -1,12 +1,12 @@
 %-------------------------------------------------------------------------
 % Author: Alvaro Gomez Inesta (UPC, MIT) & Thomas Christensen (MIT).
-% December 2017. (Last updated: January 23, 2018)
+% December 2017. (Last updated: March 3, 2018)
 % Massachusetts Institute of Technology (MIT) & UPC (CFIS).
 %-------------------------------------------------------------------------
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Auxiliar function to Lambdas_coupled() and Lambdas_coupled_vec(). 
-% Select the mode with larger dipolar moments in dir1 and dir2 direction.
+% Auxiliar function to Lambdas(). 
+% Select the mode with larger dipolar moments in 'dirs' directions.
 % This function maximizes the product of dipolar moments.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -15,8 +15,7 @@
 %   p       : composite particle (see comparticle in MNPBEM).
 %   Sig     : matrix containing the charge distribution of the modes
 %             in columns.
-%   dir1    : direction of dipole in particle 1.
-%   dir2    : direction of dipole in particle 2.
+%   dirs    : directions of dipoles.
 
 % OUTPUTS:
 %   mode    : mode with larger dipolar moment product.
