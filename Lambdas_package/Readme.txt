@@ -7,11 +7,13 @@ The goal of the codes in this project is to develop a numerical implementation o
 These codes are intended to be used along with the MNPBEM Toolbox, by Ulrich Hohenester (http://physik.uni-graz.at/mnpbem/), since we make use some of their functions and solvers.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%  Add MNPBEM directory to path  %%%
+%%%  Compatibility with MNPBEM	%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 These functions cannot be used on their own, they need the MNPBEM directory to be in the Matlab path.
 
+IMPORTANT: to successfully use the colormap 'bluewhitered_mod()', which sets white for 0 and red (blue) for positive (negative) values, when displaying the surface charge of every mode of a system: please add the following line at the end of the file MNPBEM14>Misc>@bemplot>refresh.m:
+>>colormap(bluewhitered_mod()) 
 
 %%%%%%%%%%%%%%
 %%%  Help  %%%
