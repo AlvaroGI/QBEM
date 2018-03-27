@@ -5,30 +5,32 @@
 %-------------------------------------------------------------------------
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Example 1: display the modes for an Ag nanorod and manually select
-% one of them to compute the Lambdas. The modes will be ordered in
-% descending dipole moment in a direction specified by the user.
+% Example 2: display the charge distribution for the mode with larger
+% dipole moment in z direction of spheroids of different aspect ratio.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%
 clear all
 
-%% Create rod
-disp('Computing rod...')
-
+%% Data common to all spheroids:
 diam = 1; % Diameter [nm]
-ab = 3;
 Nelem = 500; % Approximated number of elements
+mode = 'dipolar_max';
+dir = [1 0 0];
 
-[p, op] = AgRod(diam, ab, Nelem);
+for ab = [4 2 1 0.5 0.1]
+    %% Create spheroid
+    disp('Computing spheroid...')
 
-%% Compute Lambdas
-disp('   -Computing Lambdas...')
+    [p, op] = AgSpheroid(diam, ab, Nelem);
 
-mode = -1;
-dir = [0 0 1];
-[Lambda_0, Lambda_T, Lambda_II, Sig] = Lambdas(p, op, mode, dir);
+    %% Compute Lambdas
+    disp('   -Computing Lambdas...')
 
-disp(['Lambda_0 = ' num2str(Lambda_0)])
-disp(['Lambda_T = ' num2str(Lambda_T)])
-disp(['Lambda_II = ' num2str(Lambda_II)])
+    [Lambda_0, Lambda_T, Lambda_II, Sig] = Lambdas(p, op, mode, dir);
+    
+    figure()
+    plot(p,Sig)
+    colormap(bluewhitered_mod())
+
+end

@@ -5,30 +5,31 @@
 %-------------------------------------------------------------------------
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Example 1: display the modes for an Ag nanorod and manually select
-% one of them to compute the Lambdas. The modes will be ordered in
-% descending dipole moment in a direction specified by the user.
+% Example 4: select the mode to compute Lambdas in a twin spheres system
+% by plotting all of them in descending product of dipole moments.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%
 clear all
 
-%% Create rod
-disp('Computing rod...')
+%% Coupled spheres
+diam = 1; % diameter [nm]
+ab = 5; % diameter/gap
+Nelem = 500;
 
-diam = 1; % Diameter [nm]
-ab = 3;
-Nelem = 500; % Approximated number of elements
-
-[p, op] = AgRod(diam, ab, Nelem);
+disp('Creating coupled spheres...')
+[p, op] = AgCoupledSpheres(diam,ab,Nelem);
 
 %% Compute Lambdas
-disp('   -Computing Lambdas...')
+disp('   -Computing lambdas...')
 
 mode = -1;
-dir = [0 0 1];
-[Lambda_0, Lambda_T, Lambda_II, Sig] = Lambdas(p, op, mode, dir);
+dirs = [0 0 1;
+        0 0 -1];
+[Lambda_0, Lambda_T, Lambda_II, Sig] = Lambdas(p, op, mode, dirs);
 
+plot(p,Sig)
+colormap(bluewhitered_mod())
 disp(['Lambda_0 = ' num2str(Lambda_0)])
 disp(['Lambda_T = ' num2str(Lambda_T)])
 disp(['Lambda_II = ' num2str(Lambda_II)])

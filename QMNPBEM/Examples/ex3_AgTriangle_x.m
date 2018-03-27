@@ -5,30 +5,38 @@
 %-------------------------------------------------------------------------
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Example 1: display the modes for an Ag nanorod and manually select
-% one of them to compute the Lambdas. The modes will be ordered in
-% descending dipole moment in a direction specified by the user.
+% Example 3: compute the Lambdas and the charge distribution for a 
+% triangle (mode with larger dipole moment in x direction).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%
 clear all
 
-%% Create rod
-disp('Computing rod...')
-
-diam = 1; % Diameter [nm]
-ab = 3;
-Nelem = 500; % Approximated number of elements
-
-[p, op] = AgRod(diam, ab, Nelem);
+%% Create triangle
+disp('Computing triangle...')
+edge = 1;
+ab = 5;
+Nelem = 500;
+[p, op] = AgTriangle(edge,ab,Nelem);
 
 %% Compute Lambdas
-disp('   -Computing Lambdas...')
+disp('   -Computing lambdas...')
 
-mode = -1;
-dir = [0 0 1];
+mode = 'dipolar_max';
+dir = [1 0 0];
 [Lambda_0, Lambda_T, Lambda_II, Sig] = Lambdas(p, op, mode, dir);
 
 disp(['Lambda_0 = ' num2str(Lambda_0)])
 disp(['Lambda_T = ' num2str(Lambda_T)])
 disp(['Lambda_II = ' num2str(Lambda_II)])
+
+%% Plot
+figure()
+plot(p,'EdgeColor','b')
+hold on
+plot(p,Sig)
+colormap(bluewhitered_mod())
+
+
+
+
