@@ -15,6 +15,8 @@ These functions cannot be used on their own, they need the MNPBEM directory to b
 IMPORTANT: to successfully use the colormap 'bluewhitered_mod()', which sets white for 0 and red (blue) for positive (negative) values, when displaying the surface charge of every mode of a system: please add the following line at the end of the file MNPBEM14>Misc>@bemplot>refresh.m:
 >>colormap(bluewhitered_mod()) 
 
+NOTE: some examples may use the morgenstemning() colormap. It can be downloaded at: https://www.mathworks.com/matlabcentral/fileexchange/31761-colormaps-compatible-with-red-green-color-perception-deficiencies?focused=3783162&tab=function
+
 %%%%%%%%%%%%%%
 %%%  Help  %%%
 %%%%%%%%%%%%%%
