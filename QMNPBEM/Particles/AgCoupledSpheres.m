@@ -5,29 +5,30 @@
 %-------------------------------------------------------------------------
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Shortcut to create an Ag spheroid embedded in air using MNPBEM for
-% non-retarded static simulations and 'curv' interpolation.
+% Shortcut to create Ag twin spheres (same diameter) embedded in air 
+% using MNPBEM for non-retarded static simulations and 'curv' interpolation.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 % INPUTS:
-%   diameter: diameter of the spheroid [nm].
-%   ab      : (total length of the spheroid)/diameter.
-%   Nelem   : approximated number of elements.
+%   diameter: diameter of the spheres [nm].
+%   ab      : diameter/gap.
+%   Nelem   : approximated number of elements PER SPHERE.
 
 % OUTPUTS:
 %   p       : composite particle (see comparticle in MNPBEM).
 %   op      : options (see MNPBEM).
 
 
-function [p, op] = AgSpheroid(diameter,ab,Nelem)
+function [p, op] = AgCoupledSpheres(diameter,ab,Nelem)
 
     op = bemoptions( 'sim', 'stat', 'waitbar', 0, 'interp', 'curv');
-
+    
     % Dielectric functions
     eps_d = 1;
-    epstab = { epsconst( eps_d ), epstable( 'silver.dat' ) };    
-        
+    epstab = { epsconst( eps_d ), epsdrude( 'Ag' ), epsdrude( 'Ag' ) };
+    
+    %% Single sphere
     % Nelem to sizefactor:
     Nelem_vec = [508 644 796 964 1054 1246 1348 1564 1678 1796 2044 2446 2884];
     old = Nelem;
@@ -40,18 +41,21 @@ function [p, op] = AgSpheroid(diameter,ab,Nelem)
     indexN = find(Nelem_vec==Nelem);
     sf_vec = [0.5 0.65 0.80 0.950 1.10 1.250 1.40 1.55 1.70 1.85 2 2.30  2.750];
     sizefactor = sf_vec(indexN);    
-    
-    % Geometry:
-    height = ab*diameter; % [nm]
-    n = 500*sizefactor; % n is the number of boundary elements
-    axiss = [diameter, diameter, height];
+        
+    n = 500*sizefactor;
 
-    particle = scale( trisphere( n, 1 ), axiss );
+    % Sphere:
+    particle = trisphere( n, diameter );
     
-    %  Initialize spheroid:
-    p = comparticle( epstab, { particle }, [ 2, 1 ], 1, op );
-    p = closed(p,1);
+    %% Coupled spheres
+    gap = diameter / (ab);
+    p1 = shift( particle, [-(diameter+gap)/2, 0, 0]);
+    p2 = shift( particle, [(diameter+gap)/2, 0, 0]);
     
-    disp(['Number of elements: ' num2str(length(p.p{1}.faces))]);
+    %  Initialize nanoellipsoid:
+    p = comparticle( epstab, { p1, p2 }, [ 2, 1; 3, 1 ], 1, 2, op );
+    p = closed(p,[1, 2]);
+    
+    disp(['Number of elements per particle: ' num2str(length(p.p{1}.faces))]);
 
 end

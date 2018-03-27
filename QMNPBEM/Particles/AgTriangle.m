@@ -5,14 +5,14 @@
 %-------------------------------------------------------------------------
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Shortcut to create an Ag spheroid embedded in air using MNPBEM for
+% Shortcut to create an Ag triangle embedded in air using MNPBEM for
 % non-retarded static simulations and 'curv' interpolation.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 % INPUTS:
-%   diameter: diameter of the spheroid [nm].
-%   ab      : (total length of the spheroid)/diameter.
+%   edge    : edge of the equilateral triangle [nm].
+%   ab      : edge/height.
 %   Nelem   : approximated number of elements.
 
 % OUTPUTS:
@@ -20,16 +20,16 @@
 %   op      : options (see MNPBEM).
 
 
-function [p, op] = AgSpheroid(diameter,ab,Nelem)
-
+function [p, op] = AgTriangle(edge,ab,Nelem)
+    
     op = bemoptions( 'sim', 'stat', 'waitbar', 0, 'interp', 'curv');
-
-    % Dielectric functions
+  
+    % Dielectric function:
     eps_d = 1;
-    epstab = { epsconst( eps_d ), epstable( 'silver.dat' ) };    
-        
+    epstab = { epsconst( eps_d ), epstable( 'silver.dat' ) };
+
     % Nelem to sizefactor:
-    Nelem_vec = [508 644 796 964 1054 1246 1348 1564 1678 1796 2044 2446 2884];
+    Nelem_vec = [450 548 924 1004 1088 1504 3112 3220 3328 3476 3720 3892 4228 5188 6296 12736 12952];
     old = Nelem;
     Nelem = interp1(Nelem_vec,Nelem_vec,Nelem,'nearest');
     if isnan(Nelem) && old<Nelem_vec(1)
@@ -38,20 +38,24 @@ function [p, op] = AgSpheroid(diameter,ab,Nelem)
         Nelem = Nelem_vec(end);
     end
     indexN = find(Nelem_vec==Nelem);
-    sf_vec = [0.5 0.65 0.80 0.950 1.10 1.250 1.40 1.55 1.70 1.85 2 2.30  2.750];
-    sizefactor = sf_vec(indexN);    
+    sf_vec = [0.5:0.15:3];
+    sizefactor = sf_vec(indexN);  
     
     % Geometry:
-    height = ab*diameter; % [nm]
-    n = 500*sizefactor; % n is the number of boundary elements
-    axiss = [diameter, diameter, height];
+    height = edge/ab;
+    nz = sizefactor*8;
+    %  Create polygon
+    h = (edge^2-(edge/2)^2)^.5;
+    poly = round( polygon( 3, 'size', [ h,  2 / sqrt( 3 ) * h ], 'dir', 1 ) );  % 'dir' = 1 -> normal vectors outwards    
+    %  Extrude polygon to particle
+    zd = edgeprofile( height, nz ); % round edges   
+    particle = tripolygon( poly, zd, 'hdata',   struct( 'hmax', 0.05/sizefactor ));
 
-    particle = scale( trisphere( n, 1 ), axiss );
-    
-    %  Initialize spheroid:
+    %  Initialize comparticle:
     p = comparticle( epstab, { particle }, [ 2, 1 ], 1, op );
     p = closed(p,1);
     
     disp(['Number of elements: ' num2str(length(p.p{1}.faces))]);
 
+  
 end
