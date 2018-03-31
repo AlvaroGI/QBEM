@@ -128,7 +128,8 @@ function [alpha] = polarizability(w, p, op, eps_d, eps, ind_vec, per_vec, d_T, d
     
     % Perpendicular d-parameter
     if strcmp(d_T,'HDM') % HDM value
-        d_T = -beta ./ (wp^2-w.^2).^.5;
+        %d_T = (-beta ./ (wp^2-w.^2).^.5);
+        d_T = (-beta ./ (wp^2-w.^2).^.5);
     else
         if length(w)~=length(d_T)
             error('Error in polarizability(): "w" and "d_T" must have same length')
@@ -239,8 +240,20 @@ function [alpha] = polarizability(w, p, op, eps_d, eps, ind_vec, per_vec, d_T, d
 
     %% Polarizability (alpha)
     num = repmat(alpha0,[1,Nw])+repmat(d_T,[M,1]).*alpha1_T+repmat(d_II,[M,1]).*alpha1_II;
-    den = repmat(Lambda_0,[1,Nw])+repmat(d_T,[M,1]).*repmat(Lambda_T,[1,Nw])+...
+%     den = repmat(Lambda_0,[1,Nw])+repmat(d_T,[M,1]).*repmat(Lambda_T,[1,Nw])+...
+%           repmat(d_II,[M,1]).*repmat(Lambda_II,[1,Nw])-repmat(Lambda,[M,1]); 
+    den = repmat([0; Lambda_0(2:end)],[1,Nw])+repmat(d_T,[M,1]).*repmat(Lambda_T,[1,Nw])+...
           repmat(d_II,[M,1]).*repmat(Lambda_II,[1,Nw])-repmat(Lambda,[M,1]); 
     alpha = 2*sum(num./den);
+    
+    %% Study discrepancies with Apell
+    F = repmat([0; Lambda_0(2:end)],[1,Nw])+repmat(d_T,[M,1]).*repmat(Lambda_T,[1,Nw])-...
+        -repmat(Lambda,[M,1]);
+    figure()
+    semilogy(w*6.5821e-16,abs(real(F))); hold on
+    title('Re(F)')
+    figure()
+    semilogy(w*6.5821e-16,abs(imag(F))); hold on
+    title('Im(F)')
 
 end
