@@ -1,6 +1,6 @@
 %-------------------------------------------------------------------------
 % Author: Alvaro Gomez Inesta (UPC, MIT) & Thomas Christensen (MIT).
-% November 2017. (Last updated: March 19, 2018)
+% November 2017. (Last updated: April 26, 2018)
 % Massachusetts Institute of Technology (MIT) & UPC (CFIS).
 %-------------------------------------------------------------------------
 

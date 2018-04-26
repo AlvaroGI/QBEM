@@ -1,6 +1,6 @@
 %-------------------------------------------------------------------------
 % Author: Alvaro Gomez Inesta (UPC, MIT) & Thomas Christensen (MIT).
-% March 2018. (Last updated: March 26, 2018)
+% March 2018. (Last updated: April 26, 2018)
 % Massachusetts Institute of Technology (MIT) & UPC (CFIS).
 %-------------------------------------------------------------------------
 
@@ -40,6 +40,7 @@
 %               units.
 %   beta      : hydrodynamic parameter of the material. Only required if
 %               d_T or d_II = 'HDM'. Units (recommended): [m/s].
+%   wp        : plasma frequency. Units (recommended): [rad/s].
 
 % OUTPUTS:
 %   alpha     : polarizability at the desired values of frequency.
@@ -111,8 +112,8 @@ function [alpha] = polarizability(w, p, op, eps_d, eps, ind_vec, per_vec, d_T, d
     P = length(p.p);
     
     %Convert Lambdas from [nm] to [m]
-    Lambda_T = Lambda_T*1e9; % [1/nm] to [1/m]
-    Lambda_II = Lambda_II*1e9; % [1/nm] to [1/m]
+    Lambda_T = Lambda_T; % [1/nm] to [1/m]
+    Lambda_II = Lambda_II; % [1/nm] to [1/m]
    
     % Set w as row vector
     sizew = size(w);
@@ -129,7 +130,7 @@ function [alpha] = polarizability(w, p, op, eps_d, eps, ind_vec, per_vec, d_T, d
     % Perpendicular d-parameter
     if strcmp(d_T,'HDM') % HDM value
         %d_T = (-beta ./ (wp^2-w.^2).^.5);
-        d_T = (-beta ./ (wp^2-w.^2).^.5);
+        d_T = (-beta ./ (wp^2-w.^2).^.5)*1e9*(1);
     else
         if length(w)~=length(d_T)
             error('Error in polarizability(): "w" and "d_T" must have same length')
@@ -172,10 +173,13 @@ function [alpha] = polarizability(w, p, op, eps_d, eps, ind_vec, per_vec, d_T, d
     aux1 = zeros(length(Areas_vec),1); % Auxiliar field
     [~,~,t1,t2] = deriv(p,aux1);
     nvec = cross( t1, t2 );
+    nvec = nvec./repmat((nvec(:,1).^2+nvec(:,2).^2+nvec(:,3).^2).^.5,[1,3]); % Normalization
     % To plot these vectors, use the following commands:
         %>>plot(p,'cone',nvec,'scale',0.1)
         %>>plot(p,'EdgeColor','b')
-        
+    %or
+        %>>plot(p,'vec',nvec)
+    
     % Lambda
     Lambda = (eps_d + eps)./(eps_d-eps);
     
@@ -191,11 +195,11 @@ function [alpha] = polarizability(w, p, op, eps_d, eps, ind_vec, per_vec, d_T, d
                                                  %each column and phi modes
                                                  %in each row)
     phi_nj = ((1/(4*pi*eps0))*Sig'*g'*Areas*nj);
-    ri_sig = (ri'*Areas*Sig).';
+    ri_sig = (ri'*Areas*Sig).'; % [nm^3]
     phi_sig_nn = diag(phi_sig); % Bra-ket potential_n-charge_n
     sig_sig = Sig'*Areas*Sig; % Bra-ket charge-charge
     
-    alpha0 = phi_nj.*ri_sig./phi_sig_nn;
+    alpha0 = phi_nj.*ri_sig./phi_sig_nn; % Gaussian units: [nm^3]
 
     %% alpha^1_n: column vector with alpha^1 for each mode in each row
     %alpha1 DEPENDS on the frequency
@@ -204,56 +208,28 @@ function [alpha] = polarizability(w, p, op, eps_d, eps, ind_vec, per_vec, d_T, d
                            %particular mode n
     sum_n_II = zeros(M,Nw); % each element is the sum over m=~n for a
                             %particular mode n
-                                  
+    Lambda_n = repmat(Lambda,[M-1,1]);
+
     for m = 1:M % loop over the total number of modes
         Lambda_0_n = repmat([Lambda_0(1:m-1); Lambda_0(m+1:end)],[1,Nw]);
+        Lambda_T_n = repmat([Lambda_T(1:m-1); Lambda_T(m+1:end)],[1,Nw]);
         phi_sig_mm_n = repmat([phi_sig_nn(1:m-1); phi_sig_nn(m+1:end)],[1,Nw]);
         sig_sig_nm_n = repmat([sig_sig(1:m-1,m); sig_sig(m+1:end,m)],[1,Nw]);
         phi_nj_n = repmat([phi_nj(1:m-1); phi_nj(m+1:end)],[1,Nw]);
-        Lambda_n = repmat(Lambda,[M-1,1]);
+        %Lambda_n = repmat(sum(Lambda(2:3)),[M-1,Nw]);
         
-        sum_mat_T = sig_sig_nm_n.*phi_nj_n./((Lambda_0_n-Lambda_n).*phi_sig_mm_n);
+        sum_mat_T = sig_sig_nm_n.*phi_nj_n./((Lambda_n-Lambda_0_n).*phi_sig_mm_n);
+        
         sum_n_T(m,:) = sum(sum_mat_T)*(Lambda_0(m)-1)*(Lambda_0(m)+1)/(2*eps0);
         sum_n_II(m,:) = sum_n_II(m,:)*0;
     end
-
-% This is a try to reduce the computational cost of the previous loop. It
-%didnt work. Left here since it may be useful for somebody:
-%     Lambda_0_n = zeros(M-1,Nw,M);
-%     phi_sig_mm_n = zeros(M-1,Nw,M);
-%     sig_sig_nm_n = zeros(M-1,Nw,M);
-%     phi_nj_n = zeros(M-1,Nw,M);
-%     Lambda_n = zeros(M-1,Nw,M);
-%     for m = 1:M % loop over the total number of modes
-%         Lambda_0_n(:,:,m) = repmat([Lambda_0(1:m-1); Lambda_0(m+1:end)],[1,Nw]);
-%         phi_sig_mm_n(:,:,m) = repmat([phi_sig_nn(1:m-1); phi_sig_nn(m+1:end)],[1,Nw]);
-%         sig_sig_nm_n(:,:,m) = repmat([sig_sig(1:m-1,m); sig_sig(m+1:end,m)],[1,Nw]);
-%         phi_nj_n(:,:,m) = repmat([phi_nj(1:m-1); phi_nj(m+1:end)],[1,Nw]);
-%         Lambda_n(:,:,m) = repmat(Lambda,[M-1,1]);
-%     end
-%         sum_mat_T = sig_sig_nm_n.*phi_nj_n./((Lambda_0_n-Lambda_n).*phi_sig_mm_n);
-%         sum_n_T = reshape(sum(sum_mat_T,1),[M,Nw])*(Lambda_0(m)-1)*(Lambda_0(m)+1)/(2*eps0);
-%         sum_n_II = sum_n_II*0;
     
-    alpha1_T = (repmat(ri_sig,[1,Nw]).*sum_n_T)./repmat(phi_sig_nn,[1,Nw]);
-    alpha1_II = (repmat(ri_sig,[1,Nw]).*sum_n_II)./repmat(phi_sig_nn,[1,Nw]);
+    alpha1_T = (repmat(ri_sig,[1,Nw]).*sum_n_T)./repmat(phi_sig_nn,[1,Nw]); % [nm]
+    alpha1_II = (repmat(ri_sig,[1,Nw]).*sum_n_II)./repmat(phi_sig_nn,[1,Nw]); % [nm]
 
     %% Polarizability (alpha)
     num = repmat(alpha0,[1,Nw])+repmat(d_T,[M,1]).*alpha1_T+repmat(d_II,[M,1]).*alpha1_II;
-%     den = repmat(Lambda_0,[1,Nw])+repmat(d_T,[M,1]).*repmat(Lambda_T,[1,Nw])+...
-%           repmat(d_II,[M,1]).*repmat(Lambda_II,[1,Nw])-repmat(Lambda,[M,1]); 
-    den = repmat([0; Lambda_0(2:end)],[1,Nw])+repmat(d_T,[M,1]).*repmat(Lambda_T,[1,Nw])+...
+    den = repmat(Lambda_0,[1,Nw])+repmat(d_T,[M,1]).*repmat(Lambda_T,[1,Nw])+...
           repmat(d_II,[M,1]).*repmat(Lambda_II,[1,Nw])-repmat(Lambda,[M,1]); 
     alpha = 2*sum(num./den);
-    
-    %% Study discrepancies with Apell
-    F = repmat([0; Lambda_0(2:end)],[1,Nw])+repmat(d_T,[M,1]).*repmat(Lambda_T,[1,Nw])-...
-        -repmat(Lambda,[M,1]);
-    figure()
-    semilogy(w*6.5821e-16,abs(real(F))); hold on
-    title('Re(F)')
-    figure()
-    semilogy(w*6.5821e-16,abs(imag(F))); hold on
-    title('Im(F)')
-
 end
