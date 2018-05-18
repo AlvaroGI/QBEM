@@ -19,15 +19,15 @@
 %   p       : composite particle (see comparticle in MNPBEM).
 %   op      : options (see MNPBEM).
 %   mode    : selected mode (values from 1 to the number of nodes).
-%             Set mode=0 to display the charge distribution for every
+%            -Set mode=0 to display the charge distribution for every
 %             mode, the code will then ask you to select one of those modes
 %             in the Command Window. 
-%             Set mode=-1 for the same but showing the modes in decreasing
+%            -Set mode=-1 for the same but showing the modes in decreasing
 %             dipole moment (product of dipole moments of each particle)
 %             along particular directions that the code will ask for.
-%             Set mode='dipolar_max' to use the mode with larger product
+%            -Set mode='dipolar_max' to use the mode with larger product
 %             of dipole moments in the directions specified by the user.
-%             Set mode='azimuthal' to show the modes in decreasing order of
+%            -Set mode='azimuthal' to show the modes in decreasing order of
 %             'stronger' azimuthal symmetry in particle 'azpart'. See 
 %             azmode_order.m for further information. This is a BETA
 %             FUNCTION, may not work as desired in some cases.
@@ -232,12 +232,10 @@ function [Lambda_0, Lambda_T, Lambda_II, Sig, g] = Lambdas(p, op, mode, dirs, az
 
         Lambda_T = (Lambda_0.^2-1).*sig_sig./(phi_sig*2*eps0);
 
-        %% Lambda_II
+        %% Lambda_II - NEW IMPLEMENTATION: 4x faster, giving expected results in beta testing
         disp('   -Computing Lambda_II...')
         Lambda_II = ones(nev,1);
-        for modenum = 1:nev % THIS LOOP COULD BE VECTORIZED TO SPEED UP CALCULATIONS
-            Sigg = Sig(:,modenum);
-            pot = (1/(4*pi*eps0))*g*Sigg; % Potential at the elements
+            pot = (1/(4*pi*eps0))*g*Sig; % Potential at the elements
             potv = interp(p,pot,'area'); % Potential at the vertices
 
             %  Computation of tangential gradient 
@@ -249,14 +247,46 @@ function [Lambda_0, Lambda_T, Lambda_II, Sig, g] = Lambdas(p, op, mode, dirs, az
                  %  tangential gradient of V
                  grad = outer( bsxfun( @rdivide, cross( t2, nvec, 2 ), h ), dp1x ) -  ...
                         outer( bsxfun( @rdivide, cross( t1, nvec, 2 ), h ), dp2x );
+            int_dpot2 = zeros(nev,1);
+            for modenum = 1:nev
+                int_dpot2(modenum) = grad(:,1,modenum)'*Areas*grad(:,1,modenum) + grad(:,2,modenum)'*Areas*grad(:,2,modenum) + ...
+                            grad(:,3,modenum)'*Areas*grad(:,3,modenum); % Bra-ket (tangential grad of
+                                                        % potential)-(tangential
+                                                        % grad of potential)
+            end
+            
+            Lambda_II = 8*pi*eps0^2 * (int_dpot2) ./ diag(Sig'*g'*Areas*Sig);    
+        
+        
+        
+%         %% Lambda_II - OLD IMPLEMENTATION: x4 slower but it was reliable
+%         disp('   -Computing Lambda_II...')
+%         Lambda_II = ones(nev,1);
+%         for modenum = 1:nev % THIS LOOP COULD BE VECTORIZED TO SPEED UP CALCULATIONS
+%             Sigg = Sig(:,modenum);
+%             pot = (1/(4*pi*eps0))*g*Sigg; % Potential at the elements
+%             potv = interp(p,pot,'area'); % Potential at the vertices
+% 
+%             %  Computation of tangential gradient 
+%                  [dp1x,dp2x,t1,t2] = deriv(p,potv);
+%                  %  normal vector
+%                  nvec = cross( t1, t2 );
+%                  %  decompose into norm and unit vector
+%                  h = sqrt( dot( nvec, nvec, 2 ) );  nvec = bsxfun( @rdivide, nvec, h );
+%                  %  tangential gradient of V
+%                  grad = outer( bsxfun( @rdivide, cross( t2, nvec, 2 ), h ), dp1x ) -  ...
+%                         outer( bsxfun( @rdivide, cross( t1, nvec, 2 ), h ), dp2x );
+% 
+%             int_dpot2 = grad(:,1)'*Areas*grad(:,1) + grad(:,2)'*Areas*grad(:,2) + ...
+%                         grad(:,3)'*Areas*grad(:,3); % Bra-ket (tangential grad of
+%                                                     % potential)-(tangential
+%                                                     % grad of potential)
+% 
+%             Lambda_II(modenum) = 8*pi*eps0^2 * (int_dpot2) / (Sigg'*g'*Areas*Sigg);    
+%         end
 
-            int_dpot2 = grad(:,1)'*Areas*grad(:,1) + grad(:,2)'*Areas*grad(:,2) + ...
-                        grad(:,3)'*Areas*grad(:,3); % Bra-ket (tangential grad of
-                                                    % potential)-(tangential
-                                                    % grad of potential)
 
-            Lambda_II(modenum) = 8*pi*eps0^2 * (int_dpot2) / (Sigg'*g'*Areas*Sigg);    
-        end
+
     else
         Sig = Sig(:,mode); % Charge distribution of the mode
         %% Classical Lambda0

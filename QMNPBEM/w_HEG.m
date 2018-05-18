@@ -26,11 +26,11 @@
 %   d_T       : 2 columns matrix containing the perpendicular d-parameter
 %               (first column) at each frequency (second column). Use 'HDM' 
 %               to employ the built-in hydrodynamic (HDM) approximation.
-%               Units (recommended): [m].
+%               Units (recommended): [m; rad/s].
 %   d_II      : 2 columns matrix containing the parallel d-parameter
 %               (first column) at each frequency (second column). Use 'HDM' 
 %               to employ the built-in hydrodynamic (HDM) approximation.
-%               Units (recommended): [m].
+%               Units (recommended): [m; rad/s].
 %   beta      : hydrodynamic parameter of the material. Only required if
 %               d_T or d_II = 'HDM'. Units (recommended): [m/s].
 

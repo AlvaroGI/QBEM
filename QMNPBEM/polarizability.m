@@ -27,11 +27,11 @@
 %   d_T       : row vector containing the perpendicular d-parameter at the 
 %               frequencies given by the input w. Use 'HDM' to employ the
 %               built-in hydrodynamic (HDM) approximation.
-%               Units (recommended): [m].
+%               Units (recommended): [nm].
 %   d_II      : row vector containing the parallel d-parameter at the 
 %               frequencies given by the input w. Use 'HDM' to employ the
 %               built-in hydrodynamic (HDM) approximation.
-%               Units (recommended): [m].
+%               Units (recommended): [nm].
 %   Lambda_0  : classical eigenvalue (see [1]). Units: adimensional.
 %   Lambda_T  : perpendicular Lambda (see [1]). Units (recommended):
 %               [1/nm].
@@ -49,8 +49,7 @@
 %%%%%%%%%%%%%%%%%%% FURTHER IMPROVEMENTS %%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %warning('GET eps_d AND eps OF EACH PARTICLE FROM p')
-%warning('w IS ONLY NEEDED IF WE COMPUTE d_T OR eps')
-%warning('THE MAGNITUDE OF ALPHA HAS NOT BEEN VERIFIED BUT THE FREQ-DEPENDENCE IS OK')
+%warning('w IS ONLY NEEDED IF WE COMPUTE d_T OR eps INTERNALLY')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
@@ -209,14 +208,12 @@ function [alpha] = polarizability(w, p, op, eps_d, eps, ind_vec, per_vec, d_T, d
     sum_n_II = zeros(M,Nw); % each element is the sum over m=~n for a
                             %particular mode n
     Lambda_n = repmat(Lambda,[M-1,1]);
-
     for m = 1:M % loop over the total number of modes
         Lambda_0_n = repmat([Lambda_0(1:m-1); Lambda_0(m+1:end)],[1,Nw]);
         Lambda_T_n = repmat([Lambda_T(1:m-1); Lambda_T(m+1:end)],[1,Nw]);
         phi_sig_mm_n = repmat([phi_sig_nn(1:m-1); phi_sig_nn(m+1:end)],[1,Nw]);
         sig_sig_nm_n = repmat([sig_sig(1:m-1,m); sig_sig(m+1:end,m)],[1,Nw]);
         phi_nj_n = repmat([phi_nj(1:m-1); phi_nj(m+1:end)],[1,Nw]);
-        %Lambda_n = repmat(sum(Lambda(2:3)),[M-1,Nw]);
         
         sum_mat_T = sig_sig_nm_n.*phi_nj_n./((Lambda_n-Lambda_0_n).*phi_sig_mm_n);
         
@@ -224,8 +221,26 @@ function [alpha] = polarizability(w, p, op, eps_d, eps, ind_vec, per_vec, d_T, d
         sum_n_II(m,:) = sum_n_II(m,:)*0;
     end
     
+%     % Replacing the time consuming loop. 
+%  ¡¡¡ THIS METHOD MAKES THE CPU TO CRASH SINCE IT CREATES A MATRIX THAT
+%      REQUIRES HUNDREDS OF MB !!!
+%     if Nw < M
+%         sum_mat_T = zeros(M,Nw,M);
+%         sig_sig_nm_n = repmat(sig_sig.',[M,1]);
+%         phi_nj_n = repmat(phi_nj.',[M,1]);
+%         Lambda_0_n = repmat(Lambda_0.',[M,1]);
+%         phi_sig_mm_n = repmat(phi_sig_nn.',[M,1]);
+%         for omega = 1:Nw
+%             pre_sum_mat_T = sig_sig_nm_n.*phi_nj_n./((Lambda(omega)-Lambda_0_n).*phi_sig_mm_n);
+%             sum_mat_T(:,1,:) = pre_sum_mat_T-diag(diag(pre_sum_mat_T));
+%         end
+%         
+%         sum_n_T = sum(sum_mat_T,3).*(repmat(Lambda_0,[1,Nw])-1).*(repmat(Lambda_0,[1,Nw])+1)/(2*eps0);
+%         
+%     end
+
     alpha1_T = (repmat(ri_sig,[1,Nw]).*sum_n_T)./repmat(phi_sig_nn,[1,Nw]); % [nm]
-    alpha1_II = (repmat(ri_sig,[1,Nw]).*sum_n_II)./repmat(phi_sig_nn,[1,Nw]); % [nm]
+    alpha1_II = alpha1_T*0; % [nm]
 
     %% Polarizability (alpha)
     num = repmat(alpha0,[1,Nw])+repmat(d_T,[M,1]).*alpha1_T+repmat(d_II,[M,1]).*alpha1_II;
