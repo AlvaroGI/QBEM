@@ -246,5 +246,6 @@ function [alpha] = polarizability(w, p, op, eps_d, eps, ind_vec, per_vec, d_T, d
     num = repmat(alpha0,[1,Nw])+repmat(d_T,[M,1]).*alpha1_T+repmat(d_II,[M,1]).*alpha1_II;
     den = repmat(Lambda_0,[1,Nw])+repmat(d_T,[M,1]).*repmat(Lambda_T,[1,Nw])+...
           repmat(d_II,[M,1]).*repmat(Lambda_II,[1,Nw])-repmat(Lambda,[M,1]); 
+%    den = repmat(Lambda_0,[1,Nw])-repmat(Lambda,[M,1]); 
     alpha = 2*sum(num./den);
 end
